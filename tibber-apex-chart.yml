@@ -1,0 +1,165 @@
+type: custom:apexcharts-card
+apex_config:
+  chart:
+    height: 600px
+header:
+  show: true
+  title: Tibber Strompreis
+  show_states: true
+  colorize_states: true
+now:
+  show: true
+  color: black
+  label: JETZT
+hours_12: false
+graph_span: 48h
+span:
+  start: day
+yaxis:
+  - id: kWh
+    decimals: 2
+    opposite: true
+    apex_config:
+      tickAmount: 6
+  - id: EUR
+    decimals: 3
+  - id: hidden
+    show: false
+series:
+  - entity: sensor.tibber_prices
+    stroke_width: 1
+    color: blue
+    curve: stepline
+    show:
+      legend_value: false
+      in_header: false
+    extend_to: now
+    yaxis_id: EUR
+    unit: €
+    float_precision: 4
+    name: Strompreis
+    data_generator: |
+      var a = entity.attributes.today.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      }); 
+      var b = entity.attributes.tomorrow.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      });
+      return a.concat(b);
+  - entity: sensor.werner_eisenberg_weg_6_strompreis
+    extend_to: now
+    show:
+      legend_value: false
+      extremas: true
+    curve: stepline
+    color: orange
+    stroke_width: 5
+    yaxis_id: EUR
+    unit: €
+    name: aktueller Preis
+    float_precision: 3
+  - entity: sensor.tibber_prices
+    stroke_width: 2
+    show:
+      legend_value: false
+      extremas: true
+    data_generator: |
+      var a = entity.attributes.today.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      }); 
+      var b = entity.attributes.tomorrow.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      });
+      return a.concat(b);
+    curve: smooth
+    attribute: min_price
+    name: Minimaler Preis
+    color: green
+    float_precision: 3
+    yaxis_id: EUR
+    unit: €
+    type: line
+    group_by:
+      duration: 36h
+      func: min
+  - entity: sensor.tibber_prices
+    stroke_width: 2
+    show:
+      legend_value: false
+      extremas: true
+    data_generator: |
+      var a = entity.attributes.today.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      }); 
+      var b= entity.attributes.tomorrow.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      });
+      return a.concat(b);
+    curve: smooth
+    attribute: avg_price
+    name: Ø Preis
+    float_precision: 3
+    color: violet
+    yaxis_id: EUR
+    unit: €
+    type: line
+    group_by:
+      duration: 36h
+      func: avg
+  - entity: sensor.tibber_prices
+    stroke_width: 2
+    show:
+      legend_value: false
+      extremas: true
+    data_generator: |
+      return entity.attributes.tomorrow.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      });
+    curve: smooth
+    attribute: avg_price_future
+    name: Ø Preis morgen
+    float_precision: 3
+    color: grey
+    yaxis_id: EUR
+    unit: €
+    type: line
+    group_by:
+      duration: 24h
+      func: avg
+  - entity: sensor.tibber_prices
+    stroke_width: 2
+    show:
+      legend_value: false
+      extremas: true
+    data_generator: |
+      var a = entity.attributes.today.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      }); 
+      var b= entity.attributes.tomorrow.map((entry) => {
+        return [new Date(entry.startsAt), entry.total];
+      });
+      return a.concat(b);
+    curve: smooth
+    attribute: max_price
+    name: Max Preis
+    float_precision: 3
+    color: red
+    yaxis_id: EUR
+    type: line
+    group_by:
+      duration: 36h
+      func: max
+  - entity: sensor.tibber_kumulierter_verbrauch_aktuelle_stunde
+    name: Netzbezug pro Stunde
+    float_precision: 2
+    show:
+      legend_value: false
+      in_header: false
+    stroke_width: 5
+    color: brown
+    opacity: 0.8
+    yaxis_id: kWh
+    type: column
+    group_by:
+      func: max
+      duration: 60min
