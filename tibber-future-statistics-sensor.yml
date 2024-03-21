@@ -272,8 +272,6 @@
         today_night_start_time: "{{ now().replace(hour=19).replace(minute=59).replace(second=59) }}"
         tomorrow_night_start_time: "{{ now().replace(hour=19).replace(minute=59).replace(second=59) + timedelta(hours=24) }}"
 
-        price_factor: "3.0"
-
         min_price_today_day: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | map(attribute='total') | min | float(0) }}"
         min_price_today_night: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | map(attribute='total') | min | float(0) }}"
         min_price_tomorrow_day: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_night_start_time') | string | replace(' ','T'))) | map(attribute='total') | min | float(0) }}"
