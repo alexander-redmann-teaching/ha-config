@@ -34,11 +34,11 @@ details:
       text: Leistung
       icon: mdi:speedometer
     group2:
-      text: Zustand
-      icon: mdi:information
-    group3:
       text: Einstellungen
       icon: mdi:cog
+    group3:
+      hide: true
+      icon: mdi:non
   info_left:
     - entity_id: sensor.smaev_3015075197_charging_station_status
       text: online
@@ -58,30 +58,6 @@ details:
       text: Leistung
       unit_show: true
   group2:
-    - entity_id: binary_sensor.smaev_3015075197_charging_station_online
-      text: online
-    - entity_id: sensor.smaev_3015075197_charging_station_voltage
-      text: voltage
-      unit_show: true
-    - entity_id: sensor.smaev_3015075197_charging_station_power
-      text: power
-      unit_show: true
-    - entity_id: sensor.smaev_3015075197_charging_station_current
-      text: charger_current
-      unit_show: true
-    - entity_id: sensor.smaev_3015075197_charging_station_circuit_current
-      text: circuit_current
-      unit_show: true
-    - entity_id: sensor.smaev_3015075197_charging_station_energy_per_hour
-      text: energy_per_hour
-      unit_show: true
-    - entity_id: sensor.smaev_3015075197_charging_station_session_energy
-      text: session_energy
-      unit_show: true
-    - entity_id: sensor.smaev_3015075197_charging_station_lifetime_energy
-      text: lifetime_energy
-      unit_show: true
-  group3:
     - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
       text: Betriebsart
       icon: mdi:format-list-bulleted
@@ -220,5 +196,5 @@ details:
         icon: mdi:file-download
         conditional_entity: binary_sensor.smaev_3015075197_charging_station_update_available
 customCardTheme: theme_default
-chargerImage: White
+chargerImage: Generic
 customImage: /local/sma_ev_charger_no_bg.png

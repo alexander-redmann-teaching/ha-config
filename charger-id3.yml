@@ -4,7 +4,8 @@ brand: vwegolf
 show_leds: false
 details:
   name:
-    text: ID.3
+    entity_id: input_text.vw_id_3_name
+    attribute: name
   status:
     entity_id: device_tracker.vw_id_3_position
   location:
@@ -131,10 +132,14 @@ details:
     default:
       - service: switch.toggle
         service_data:
-          entity_id: switch.switch.vw_id_3_charging
+          entity_id: switch.vw_id_3_charging
         text: Laden umschalten
         icon: mdi:ev-station
 customCardTheme: theme_default
 compact_view: false
 show_name: true
 customImage: /local/vwid3.png
+show_toolbar: false
+show_stats: true
+show_collapsibles: true
+show_status: true
