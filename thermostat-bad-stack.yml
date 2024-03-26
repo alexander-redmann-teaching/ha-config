@@ -52,6 +52,7 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mini-graph-card
+        height: 200
         points_per_hour: 4
         hours_to_show: 48
         hour24: true
@@ -75,9 +76,10 @@ cards:
             color: '#e69138'
           - value: 21
             color: '#cc0000'
-          - value: 22
+          - value: 22.5
             color: '#601C15'
       - type: custom:mini-graph-card
+        height: 200
         points_per_hour: 4
         hours_to_show: 48
         hour24: true
