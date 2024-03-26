@@ -136,7 +136,10 @@ entities:
     title: Position
     cards:
       - type: map
+        auto_fit: true
+        hours_to_show: 3
         entities:
           - entity: device_tracker.vw_id_3_position
+            name: VW
         dark_mode: false
         default_zoom: 13
