@@ -2,6 +2,9 @@ type: custom:expander-card
 clear: true
 title: Verlauf
 title-card-button-overlay: true
+overlay-margin: 2em
+padding: 0
+child-padding: 0
 title-card:
   type: custom:simple-thermostat
   entity: climate.gruppe_bad_int0000003
