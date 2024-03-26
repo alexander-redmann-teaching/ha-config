@@ -12,17 +12,9 @@ details:
   status:
     entity_id: sensor.smaev_3015075197_charging_session_status
   substatus:
-    entity_id: sensor.smaev_3015075197_charging_station_reason_for_no_current
+    entity_id: sensor.smaev_3015075197_position_of_rotary_switch
   smartcharging:
     entity_id: sensor.smaev_3015075197_position_of_rotary_switch
-  currentlimits:
-    - 0
-    - 6
-    - 10
-    - 16
-    - 20
-    - 25
-    - 32
   statetext:
     not_connected: Nicht Verbunden
     sleep_mode: Wartend
@@ -72,46 +64,32 @@ details:
       icon: mdi:content-cut
   stats:
     default:
-      - entity_id: sensor.smaev_3015075197_charging_station_session_energy
-        text: session_energy
-        unit_show: true
-      - entity_id: switch.smaev_3015075197_charging_station_cable_locked_permanently
-        text: cable_locked
-      - entity_id: binary_sensor.smaev_3015075197_charging_station_basic_schedule
-        text: schedule
-    not_connected:
-      - entity_id: sensor.smaev_3015075197_charging_station_session_energy
-        text: session_energy
-        unit_show: true
-      - entity_id: switch.smaev_3015075197_charging_station_cable_locked_permanently
-        text: cable_locked
-      - entity_id: calculated
-        text: used_limit
-        unit: A
-        unit_show: true
-        calc_function: min
-        calc_entities:
-          - entity_id: sensor.smaev_3015075197_charging_station_dynamic_charger_limit
-          - entity_id: sensor.smaev_3015075197_charging_station_dynamic_circuit_limit
-          - entity_id: sensor.smaev_3015075197_charging_station_max_charger_limit
-          - entity_id: sensor.smaev_3015075197_charging_station_max_circuit_limit
-          - entity_id: sensor.smaev_3015075197_charging_station_offline_circuit_limit
-    sleep_mode:
       - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
         text: Lademodus
+        type: dropdown
       - entity_id: sensor.smaev_3015075197_charging_station_meter_reading
         text: Zählerstand
         unit_show: true
-      - entity_id: sensor.smaev_3015075197_position_of_rotary_switch
-        text: Drehschalter
+    not_connected:
+      - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
+        text: Lademodus
+        type: dropdown
+      - entity_id: sensor.smaev_3015075197_charging_station_meter_reading
+        text: Zählerstand
+        unit_show: true
+    sleep_mode:
+      - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
+        text: Lademodus
+        type: dropdown
+      - entity_id: sensor.smaev_3015075197_charging_station_meter_reading
+        text: Zählerstand
+        unit_show: true
     active_mode:
       - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
         text: Lademodus
+        type: dropdown
       - entity_id: sensor.smaev_3015075197_charging_session_energy
         text: Energie
-        unit_show: true
-      - entity_id: number.smaev_3015075197_duration_charge_session
-        text: Ladedauer
         unit_show: true
       - entity_id: sensor.smaev_3015075197_charging_station_power
         text: Ladeleistung
@@ -119,82 +97,26 @@ details:
     unknown:
       - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
         text: Lademodus
+        type: dropdown
       - entity_id: sensor.smaev_3015075197_charging_station_meter_reading
         text: Zählerstand
         unit_show: true
-      - entity_id: sensor.smaev_3015075197_position_of_rotary_switch
-        text: Drehschalter
     station_locked:
       - entity_id: select.smaev_3015075197_operating_mode_of_charge_session
         text: Lademodus
+        type: dropdown
       - entity_id: sensor.smaev_3015075197_charging_station_meter_reading
         text: Zählerstand
         unit_show: true
-      - entity_id: sensor.smaev_3015075197_position_of_rotary_switch
-        text: Drehschalter
   toolbar_left:
     default: []
-    not_connected: []
-    sleep_mode:
-      - service: easee.stop
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: stop
-        icon: hass:stop
-      - service: easee.resume
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: resume
-        icon: hass:play
-      - service: easee.override_schedule
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: override
-        icon: hass:motion-play
-    active_mode:
-      - service: easee.stop
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: stop
-        icon: hass:stop
-      - service: easee.pause
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: pause
-        icon: hass:pause
-    unknown:
-      - service: easee.reboot
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: reboot
-        icon: hass:restart
-    station_locked:
-      - service: easee.stop
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: stop
-        icon: hass:stop
-      - service: easee.override_schedule
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: override
-        icon: hass:motion-play
   toolbar_right:
-    default:
-      - service: persistent_notification.create
-        service_data:
-          message: Firmware update is available, but only possible when not_connected!
-          title: Update
-        text: update
-        icon: mdi:file-download
-        conditional_entity: binary_sensor.smaev_3015075197_charging_station_update_available
-    not_connected:
-      - service: easee.update_firmware
-        service_data:
-          charger_id: c6cb297799dbe5cecf110f630cd6523a
-        text: update
-        icon: mdi:file-download
-        conditional_entity: binary_sensor.smaev_3015075197_charging_station_update_available
+    default: []
 customCardTheme: theme_default
 chargerImage: Generic
 customImage: /local/sma_ev_charger_no_bg.png
+show_toolbar: false
+show_stats: true
+show_collapsibles: true
+show_name: true
+compact_view: false
