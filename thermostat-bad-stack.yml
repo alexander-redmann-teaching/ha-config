@@ -1,0 +1,104 @@
+type: custom:expander-card
+clear: true
+title: Verlauf
+title-card-button-overlay: true
+title-card:
+  type: custom:simple-thermostat
+  entity: climate.gruppe_bad_int0000003
+  layout:
+    step: row
+    mode:
+      headings: false
+      icons: true
+      names: false
+    sensors:
+      type: table
+      labels: true
+  header:
+    name: Bad
+    icon: mdi:bathtub
+    faults:
+      - entity: binary_sensor.kontakt_bad_fenster_rechts
+        icon: mdi:window-open-variant
+        hide_inactive: true
+  control:
+    hvac:
+      'off': false
+      heat: false
+      auto: false
+    preset:
+      _name: Modus
+      boost:
+        icon: mdi:rocket-launch
+        name: Boost
+      week_program_1:
+        icon: mdi:briefcase
+        name: Normal
+      week_program_2:
+        icon: mdi:home
+        name: Zuhause
+      week_program_3:
+        icon: mdi:airplane-takeoff
+        name: Abwesend
+      none: false
+  sensors:
+    - entity: sensor.gruppe_bad_int0000003_luftfeuchtigkeit
+      name: Luftfeuchtigkeit
+      icon: mdi:water-percent
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: custom:mini-graph-card
+        points_per_hour: 4
+        hours_to_show: 48
+        hour24: true
+        animate: true
+        show:
+          labels: true
+          state: false
+          name: false
+          icon: true
+          name_adaptive_color: true
+          icon_adaptive_color: true
+          fill: true
+          indicator: true
+        entities:
+          - sensor.gruppe_bad_int0000003_temperatur
+        line_color: red
+        color_thresholds:
+          - value: 19
+            color: '#1287a1'
+          - value: 20
+            color: '#e69138'
+          - value: 21
+            color: '#cc0000'
+          - value: 22
+            color: '#601C15'
+      - type: custom:mini-graph-card
+        points_per_hour: 4
+        hours_to_show: 48
+        hour24: true
+        animate: true
+        show:
+          labels: true
+          state: false
+          name: false
+          icon: true
+          name_adaptive_color: true
+          icon_adaptive_color: true
+          fill: true
+          indicator: true
+        entities:
+          - sensor.gruppe_bad_int0000003_luftfeuchtigkeit
+        line_color: blue
+        color_thresholds:
+          - value: 0
+            color: '#f1c232'
+          - value: 40
+            color: '#f1c232'
+          - value: 45
+            color: '#3d85c6'
+          - value: 65
+            color: '#3d85c6'
+          - value: 100
+            color: '#cc0000'
