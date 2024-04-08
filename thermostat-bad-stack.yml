@@ -1,5 +1,5 @@
 type: custom:expander-card
-clear: true
+clear: false
 title: Verlauf
 title-card-button-overlay: true
 overlay-margin: 2em
@@ -70,12 +70,14 @@ cards:
           - sensor.gruppe_bad_int0000003_temperatur
         line_color: red
         color_thresholds:
-          - value: 19
+          - value: 17
+            color: '#142bc4'
+          - value: 18.5
             color: '#1287a1'
           - value: 20
             color: '#e69138'
           - value: 21
-            color: '#cc0000'
+            color: '#cc3a00'
           - value: 22.5
             color: '#601C15'
       - type: custom:mini-graph-card
@@ -99,11 +101,13 @@ cards:
         color_thresholds:
           - value: 0
             color: '#f1c232'
-          - value: 40
+          - value: 35
             color: '#f1c232'
           - value: 45
             color: '#3d85c6'
-          - value: 65
+          - value: 60
             color: '#3d85c6'
+          - value: 70
+            color: '#00cc00'
           - value: 100
-            color: '#cc0000'
+            color: '#00cc00'
