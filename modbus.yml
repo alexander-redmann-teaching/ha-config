@@ -1,0 +1,114 @@
+- name: sma-tripower
+  type: tcp
+  host: 192.168.178.66
+  port: 502
+  sensors:
+    ############################################################################
+    # Allgmein
+    ############################################################################
+    - name: SMA-Tripower-SusyId
+      slave: 3
+      address: 30003
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-Seriennummer
+      slave: 3
+      address: 30005
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-Länderdatensatz
+      slave: 3
+      address: 40109
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-Wechselrichter-Zustand
+      slave: 3
+      address: 32385
+      data_type: uint32
+      nan_value: 0x80000000
+    ############################################################################
+    # Batterie
+    ############################################################################
+    - name: SMA-Tripower-BatterieLadezustand
+      slave: 3
+      address: 30845
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieLadung
+      slave: 3
+      address: 34661
+      data_type: uint64
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieMomentaneBatterieladung
+      slave: 3
+      address: 31393
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieKapazität
+      slave: 3
+      address: 30847
+      data_type: uint32
+      unit_of_measurement: Wh
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieBetriebsstatus
+      slave: 3
+      address: 31391
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieZustand
+      slave: 3
+      address: 30955
+      data_type: uint32
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieNennkapazität
+      slave: 3
+      address: 40187
+      data_type: uint32
+      unit_of_measurement: Wh
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieMaximaleLadeleistung
+      slave: 3
+      address: 40189
+      data_type: uint32
+      unit_of_measurement: Wh
+      nan_value: 0x80000000
+    - name: SMA-Tripower-BatterieErsatzstromsbereichMin
+      slave: 3
+      address: 40723
+      data_type: uint32
+      unit_of_measurement: Wh
+      nan_value: 0x80000000
+    ############################################################################
+    # Power
+    ############################################################################
+
+    #Aktuelle PV-Einspeisewirkleistung über alle Außenleiter, in W
+    - name: SMA-Tripower-SMARawPowerACTotal
+      device_class: power
+      unit_of_measurement: W
+      slave: 3
+      address: 30775
+      data_type: int32
+      nan_value: 0x80000000
+    # Wirkleistung Außenleiter L1, in W
+    ############################################################################
+    # Energy
+    ############################################################################
+
+    #Total eingespeiste Energie auf allen Außenleitern, in Wh
+    - name: SMA-Tripower-TotalEnergy
+      device_class: energy
+      unit_of_measurement: Wh
+      slave: 3
+      address: 30513
+      data_type: uint64
+      nan_value: 0xFFFFFFFFFFFFFFFF
+    #Am laufenden Tag eingespeiste Energie, auf allen Phasen, in Wh
+    - name: SMA-Tripower-DailyEnergy
+      device_class: energy
+      unit_of_measurement: Wh
+      state_class: total_increasing
+      slave: 3
+      address: 30517
+      data_type: uint64
+      nan_value: 0xFFFFFFFFFFFFFFFF

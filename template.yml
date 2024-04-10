@@ -1,0 +1,354 @@
+- sensor:
+    - name: Tibber future statistics
+      state: "{{ states('sensor.tibber_prices') }}"
+      attributes:
+        all_prices: "{{ (state_attr('sensor.tibber_prices', 'today') + state_attr('sensor.tibber_prices', 'tomorrow')) }}"
+        future_prices: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (now() - timedelta(hours=1)) | string | replace(' ','T')) | list }}"
+        current_price: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', now() | string | replace(' ','T')) | map(attribute='total') | first | float(0) }}"
+        average: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | map(attribute='total') | average | float(0) }}"
+        min_price: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | map(attribute='total') | min }}"
+        min_hour: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('total', 'equalto', state_attr('sensor.tibber_future_statistics', 'min_price')) |  map(attribute='startsAt') | first }}"
+        min_price_level: >-
+          {% set price_inspect = state_attr('sensor.tibber_future_statistics', 'min_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'average') | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_inspect == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_inspect / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        max_price: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | map(attribute='total') | max | float(0) }}"
+        max_hour: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('total', 'equalto', state_attr('sensor.tibber_future_statistics', 'max_price')) |  map(attribute='startsAt') | first }}"
+        max_price_level: >-
+          {% set price_inspect = state_attr('sensor.tibber_future_statistics', 'max_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'average') | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_inspect == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_inspect / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_to_max_price_level: >-
+          {% set price_inspect = state_attr('sensor.tibber_future_statistics', 'min_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'max_price') | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_inspect == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_inspect / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        delta_price: "{{ (state_attr('sensor.tibber_future_statistics', 'max_price') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'min_price') | float(0)) }}"
+        delta_price_min_avg: "{{ (state_attr('sensor.tibber_future_statistics', 'average') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'min_price') | float(0)) }}"
+        delta_price_max_avg: "{{ (state_attr('sensor.tibber_future_statistics', 'max_price') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'average') | float(0)) }}"
+        min_price_phase_below: "{{ (state_attr('sensor.tibber_future_statistics', 'min_price') | float(0)) + (state_attr('sensor.tibber_future_statistics', 'delta_price_min_avg')| float(0) * 0.25) }}"
+        max_price_phase_above: "{{ (state_attr('sensor.tibber_future_statistics', 'max_price') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'delta_price_max_avg')| float(0) * 0.75) }}"
+        current_price_level: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'average') | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_3h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=2)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_3h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=2)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_3h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=2)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+        current_price_level_3h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=2)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_4h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=3)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_4h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=3)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_4h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=3)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+        current_price_level_4h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=3)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_6h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=5)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_6h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=5)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_6h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=5)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+        current_price_level_6h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=5)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_8h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=7)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_8h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=7)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_8h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=7)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+        current_price_level_8h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=7)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_12h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=11)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_12h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=11)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_12h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=11)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+        current_price_level_12h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=11)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_16h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=15)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_16h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=15)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_16h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=15)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+        current_price_level_16h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=15)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+        min_24h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=23)) | string | replace(' ','T')) | map(attribute='total') | min | float(0) }}"
+        max_24h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=23)) | string | replace(' ','T')) | map(attribute='total') | max | float(0) }}"
+        avg_24h: "{{ state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=23)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) }}"
+
+        today_day_start_time: "{{ now().replace(hour=7).replace(minute=59).replace(second=59) }}"
+        tomorrow_day_start_time: "{{ now().replace(hour=7).replace(minute=59).replace(second=59) + timedelta(hours=24) }}"
+        today_night_start_time: "{{ now().replace(hour=19).replace(minute=59).replace(second=59) }}"
+        tomorrow_night_start_time: "{{ now().replace(hour=19).replace(minute=59).replace(second=59) + timedelta(hours=24) }}"
+
+        min_price_today_day: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | map(attribute='total') | min | float(0) }}"
+        min_price_today_night: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | map(attribute='total') | min | float(0) }}"
+        min_price_tomorrow_day: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_night_start_time') | string | replace(' ','T'))) | map(attribute='total') | min | float(0) }}"
+
+        low_price_phase_today_day_starts_at: "{{ (state_attr('sensor.tibber_future_statistics', 'min_price_today_day') | float(0)) + (((state_attr('sensor.tibber_future_statistics', 'average') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'min_price_today_day') | float(0))) / (states('input_number.tibber_price_phase_factor') | float(0)) ) }}"
+        low_price_phase_today_night_starts_at: "{{ (state_attr('sensor.tibber_future_statistics', 'min_price_today_night') | float(0)) + (((state_attr('sensor.tibber_future_statistics', 'average') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'min_price_today_night') | float(0))) /(states('input_number.tibber_price_phase_factor') | float(0)) ) }}"
+        low_price_phase_tomorrow_day_starts_at: "{{ (state_attr('sensor.tibber_future_statistics', 'min_price_tomorrow_day') | float(0)) + (((state_attr('sensor.tibber_future_statistics', 'average') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'min_price_tomorrow_day') | float(0))) / (states('input_number.tibber_price_phase_factor') | float(0)) ) }}"
+
+        low_price_phase_today_day: "{{state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('total', '<=', state_attr('sensor.tibber_future_statistics', 'low_price_phase_today_day_starts_at')) | list }}"
+        low_price_phase_today_night: "{{state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('total', '<=', state_attr('sensor.tibber_future_statistics', 'low_price_phase_today_night_starts_at')) | list }}"
+        low_price_phase_tomorrow_day: "{{state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_night_start_time') | string | replace(' ','T'))) | selectattr('total', '<=', state_attr('sensor.tibber_future_statistics', 'low_price_phase_tomorrow_day_starts_at')) | list }}"
+
+        max_price_today_day: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | map(attribute='total') | max | float(0) }}"
+        max_price_today_night: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | map(attribute='total') | max | float(0) }}"
+        max_price_tomorrow_day: "{{ state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_night_start_time') | string | replace(' ','T'))) | map(attribute='total') | max | float(0) }}"
+
+        high_price_phase_today_day_starts_at: "{{ (state_attr('sensor.tibber_future_statistics', 'max_price_today_day') | float(0)) - (((state_attr('sensor.tibber_future_statistics', 'max_price_today_day') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'average') | float(0))) / (states('input_number.tibber_price_phase_factor') | float(0)) ) }}"
+        high_price_phase_today_night_starts_at: "{{ (state_attr('sensor.tibber_future_statistics', 'max_price_today_night') | float(0)) - (((state_attr('sensor.tibber_future_statistics', 'max_price_today_night') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'average') | float(0))) / (states('input_number.tibber_price_phase_factor') | float(0)) ) }}"
+        high_price_phase_tomorrow_day_starts_at: "{{ (state_attr('sensor.tibber_future_statistics', 'max_price_tomorrow_day') | float(0)) - (((state_attr('sensor.tibber_future_statistics', 'max_price_tomorrow_day') | float(0)) - (state_attr('sensor.tibber_future_statistics', 'average') | float(0))) / (states('input_number.tibber_price_phase_factor') | float(0)) ) }}"
+
+        high_price_phase_today_day: "{{state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('total', '>=', state_attr('sensor.tibber_future_statistics', 'high_price_phase_today_day_starts_at')) | list }}"
+        high_price_phase_today_night: "{{state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'today_night_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('total', '>=', state_attr('sensor.tibber_future_statistics', 'high_price_phase_today_night_starts_at')) | list }}"
+        high_price_phase_tomorrow_day: "{{state_attr('sensor.tibber_future_statistics', 'all_prices') | selectattr('startsAt', 'gt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_day_start_time') | string | replace(' ','T'))) | selectattr('startsAt', 'lt', (state_attr('sensor.tibber_future_statistics', 'tomorrow_night_start_time') | string | replace(' ','T'))) | selectattr('total', '>=', state_attr('sensor.tibber_future_statistics', 'high_price_phase_tomorrow_day_starts_at')) | list }}"
+
+        current_price_level_24h: >-
+          {% set price_cur = state_attr('sensor.tibber_future_statistics', 'current_price') | float(0) %}
+          {% set price_avg = state_attr('sensor.tibber_future_statistics', 'future_prices') | selectattr('startsAt', 'lt', (now() + timedelta(hours=23)) | string | replace(' ','T')) | map(attribute='total') | average | float(0) %}
+          {% set very_expensive_ratio = states('input_number.tibber_very_expensive_ratio') | float(0) %}
+          {% set expensive_ratio = states('input_number.tibber_expensive_ratio') | float(0) %}
+          {% set cheap_ratio = states('input_number.tibber_cheap_ratio') | float(0) %}
+          {% set very_cheap_ratio = states('input_number.tibber_very_cheap_ratio') | float(0) %}
+          {% if price_cur == 0 or price_avg == 0 %}
+            unknown
+          {% else %}
+            {% set price_ratio = (price_cur / price_avg) %}
+            {% if price_ratio >= very_expensive_ratio %}
+              VERY_EXPENSIVE
+            {% elif price_ratio >= expensive_ratio %}
+              EXPENSIVE
+            {% elif price_ratio <= cheap_ratio %}
+              VERY_CHEAP
+            {% elif price_ratio <= very_cheap_ratio %}
+              CHEAP
+            {% else %}
+              NORMAL
+            {% endif %}
+          {% endif %}
+
+- sensor:
+  - name: "energy_pv_direct_usage"
+    state: "{{ (states('sensor.tripower_pv_gen_meter') | float(0)) - (states('sensor.tripower_metering_total_yield') | float(0)) - (states('sensor.tripower_battery_charge_total') | float(0)) }}"
+    unit_of_measurement: "kWh"
+- sensor:
+  - name: "energy_battery_efficiency"
+    state: "{{ (states('sensor.tripower_battery_discharge_total') | float(0)) / (states('sensor.tripower_battery_charge_total') | float(0)) }}"
+    unit_of_measurement: "%"
+- sensor:
+  - name: "energy_pv_own_usage"
+    state: "{{ (states('sensor.tripower_pv_gen_meter') | float(0)) - (states('sensor.tripower_metering_total_yield') | float(0)) }}"
+    unit_of_measurement: "kWh"
+- sensor:
+  - name: "energy_total_usage"
+    state: "{{ (states('sensor.energy_pv_direct_usage') | float(0)) + (states('sensor.tripower_metering_total_absorbed') | float(0)) + (states('sensor.tripower_battery_discharge_total') | float(0)) }}"
+    unit_of_measurement: "kWh"
+- sensor:
+  - name: "energy_total_usage_household_only"
+    state: "{{ (states('sensor.energy_total_usage') | float(0)) - ((states('sensor.smaev_3015075197_charging_station_meter_reading') | float(0)) / 1000) }}"
+    unit_of_measurement: "kWh"
+- sensor:
+    - name: "pv_active_days"
+      state: "{{ (now() - states('input_datetime.pv_aktivierung') | as_datetime | as_local).days }}"
+      unit_of_measurement: "Days"
+- sensor:
+    - name: "average_energy_total_consumption_per_day"
+      state: "{{ (states('sensor.energy_total_usage') | float(0)) / (states('sensor.pv_active_days') | float(0)) }}"
+      unit_of_measurement: "kWh/Day"
+- sensor:
+    - name: "average_energy_household_consumption_per_day"
+      state: "{{ (states('sensor.energy_total_usage_household_only') | float(0)) / (states('sensor.pv_active_days') | float(0)) }}"
+      unit_of_measurement: "kWh/Day"
