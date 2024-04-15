@@ -1,0 +1,52 @@
+type: vertical-stack
+cards:
+  - type: custom:energy-period-selector-plus
+    card_background: true
+    today_button: true
+    prev_next_buttons: true
+    compare_button_type: ''
+    today_button_type: text
+    period_buttons:
+      - day
+      - week
+      - month
+      - year
+  - type: custom:energy-flow-card-plus
+    entities:
+      battery:
+        entity:
+          consumption: sensor.tripower_battery_discharge_total
+          production: sensor.tripower_battery_charge_total
+      grid:
+        entity:
+          consumption: sensor.tripower_metering_total_absorbed
+          production: sensor.tripower_metering_total_yield
+      solar:
+        entity: sensor.tripower_pv_gen_meter
+        display_zero_state: true
+      home: {}
+      fossil_fuel_percentage:
+        show: true
+        entity: sensor.electricity_map_anteil_fossiler_brennstoffe_im_netz
+      individual1:
+        entity: sensor.smaev_3015075197_charging_station_meter_reading
+        icon: fas:charging-station
+        use_metadata: false
+        name: Wallbox
+        calculate_flow_rate: false
+        display_zero_state: true
+        decimals: 1
+    clickable_entities: true
+    display_zero_lines: false
+    use_new_flow_rate_model: true
+    energy_date_selection: true
+    wh_decimals: 1
+    kwh_decimals: 0
+    min_flow_rate: 1
+    max_flow_rate: 6
+    max_expected_energy: 2000
+    min_expected_energy: 10
+    wh_kwh_threshold: 1000
+    dashboard_link: /energy
+  - title: Solarproduktion
+    type: energy-solar-graph
