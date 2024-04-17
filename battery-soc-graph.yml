@@ -1,0 +1,32 @@
+type: custom:mini-graph-card
+name: Battery SOC
+header:
+  show_states: true
+  colorize_states: true
+animate: true
+points_per_hour: 4
+hour24: true
+hours_to_show: 24
+show:
+  labels: true
+  state: true
+  name: true
+  icon: true
+  name_adaptive_color: true
+  icon_adaptive_color: true
+  fill: true
+  indicator: true
+color_thresholds:
+  - value: 5
+    color: '#ff0000'
+  - value: 15
+    color: '#ff5e00'
+  - value: 30
+    color: '#ffbb00'
+  - value: 50
+    color: '#b8d402'
+  - value: 100
+    color: '#4fd402'
+entities:
+  - sensor.tripower_battery_soc_total
+  - input_number.minimale_restladung_batterie

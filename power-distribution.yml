@@ -1,0 +1,37 @@
+type: custom:power-flow-card-plus
+entities:
+  battery:
+    entity:
+      consumption: sensor.tripower_battery_power_discharge_total
+      production: sensor.tripower_battery_power_charge_total
+    state_of_charge: sensor.tripower_battery_soc_total
+  grid:
+    entity:
+      consumption: sensor.tripower_metering_power_absorbed
+      production: sensor.tripower_metering_power_supplied
+  solar:
+    entity: sensor.tripower_pv_power
+    display_zero_state: true
+  individual:
+    - entity: sensor.smaev_3015075197_charging_station_power
+      display_zero_state: true
+      icon: fas:charging-station
+      name: Wallbox
+clickable_entities: true
+display_zero_lines:
+  mode: show
+  transparency: 50
+  grey_color:
+    - 189
+    - 189
+    - 189
+use_new_flow_rate_model: true
+w_decimals: 0
+kw_decimals: 1
+min_flow_rate: 0.75
+max_flow_rate: 6
+max_expected_power: 2000
+min_expected_power: 0.01
+watt_threshold: 1000
+transparency_zero_lines: 0
+title: Momentanverbrauch
