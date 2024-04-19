@@ -26,6 +26,18 @@ yaxis:
   - id: hidden
     show: false
 series:
+  - entity: sensor.tripower_metering_daily_absorbed
+    stroke_width: 1
+    color: orange
+    curve: stepline
+    show:
+      legend_value: false
+      in_header: true
+    extend_to: now
+    yaxis_id: hidden
+    unit: kWh
+    float_precision: 2
+    name: täglicher Netzbezug
   - entity: sensor.tibber_prices
     stroke_width: 1
     color: blue
@@ -52,7 +64,7 @@ series:
       legend_value: false
       extremas: true
     curve: stepline
-    color: orange
+    color: brown
     stroke_width: 5
     yaxis_id: EUR
     unit: €
@@ -156,10 +168,10 @@ series:
       legend_value: false
       in_header: false
     stroke_width: 5
-    color: brown
+    color: orange
     opacity: 0.8
     yaxis_id: kWh
     type: column
     group_by:
       func: max
-      duration: 30min
+      duration: 60min
